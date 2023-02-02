@@ -2,22 +2,34 @@
 ! gfortran -Wall lexicon.f95 solvejumble.f95 && ./a.out
 
 program solvejumble
-    ! use lexicon
+    use lexicon
     implicit none
-
     !
     !
     !
-
     integer :: numWords, wordLen, numAnagrams
     ! integer :: numCircled, circledIndex
     integer :: index, i
     integer :: leftIndex = 1
     integer :: savedAnagrams = 1
     
-    character (len=8), allocatable, dimension(:) :: jumbledWords, anagrams
-    ! character (len=8), allocatable, dimension(:) :: anagrams
+    character (len=8), allocatable, dimension(:) :: jumbledWords, anagrams, dictionary
+    integer, dimension(27) :: alphabetIndex
     ! character (len=8) :: anagramFound, finalword, solution
+
+    ! allocate memory for dynmaic array of strings
+    allocate(dictionary(88670))
+    call buildlexicon(dictionary, alphabetIndex)
+
+    ! do i = 1, 27
+    !     print*,alphabetIndex(i)
+    ! end do
+
+    ! print*,letterToIndex('a')
+
+    ! do i = alphabetIndex(letterToIndex('a')), alphabetIndex(27)
+    !     print*,dictionary(i)
+    ! end do
 
     call inputJumble(numWords, jumbledWords)
 
@@ -34,20 +46,20 @@ program solvejumble
 
         call generateAnagram(jumbledWords(index), anagrams,leftIndex,wordLen,savedAnagrams)
         
-        do i=1, numAnagrams
-            print*,anagrams(i)
-        end do
+    ! do i=1, numAnagrams
+    !     print*,anagrams(i)
+    ! end do
 
-    !   cleanAnagrams
+!   cleanAnagrams()
 
-    !     do i = 1, numAnagrams
-    !         if (findAnagram(anagrams(i))) then
-    !             anagramFound = anagrams(i)
-    !             exit
-    !         end if
-    !     end do
-        
-    !     write (*,*) anagramFound
+    ! do i = 1, numAnagrams
+    !     if (findAnagram(anagrams(i))) then
+    !         anagramFound = anagrams(i)
+    !         exit
+    !     end if
+    ! end do
+    
+    ! write (*,*) anagramFound
     !     write (*,*) 'How many circled letters?'
     !     read (*,*) numCircled
 
@@ -77,8 +89,10 @@ program solvejumble
 
     subroutine inputJumble(numWords, jumbledWords)
         implicit none
+        !
         ! this function takes in numWords number of input strings from the user 
         ! stores the strings in a dynamically allocated array of strings
+        !
         integer, intent(out) :: numWords
         character (len=8), allocatable, dimension(:), intent(out) :: jumbledWords
         integer :: index
@@ -108,9 +122,13 @@ program solvejumble
     end subroutine inputJumble
 
     subroutine swap(word, leftIndex, i)
+        implicit none
+        !
+        ! swap the word(leftIndex:leftIndex) with word(i:i)
+        !
         character (len=8), intent(inout) :: word
         character (len=8) :: temp
-        integer, intent(in) ::leftIndex, i
+        integer, intent(in) :: leftIndex, i
 
 
         temp = word(leftIndex:leftIndex)
@@ -123,19 +141,29 @@ program solvejumble
     recursive subroutine generateAnagram(word, anagrams, leftIndex, rightIndex, numSavedAnagrams)
         implicit none
         ! 
+        ! generates all the anagrams of a given word
+        ! uses a recursive algorithm
+        ! algorithm inspired from: https://www.geeksforgeeks.org/write-a-c-program-to-print-all-permutations-of-a-given-string/
+        !
         character (len=8), intent(inout) :: word
         character (len=8), allocatable, dimension(:), intent(inout) :: anagrams
         integer, intent(inout) :: rightIndex, numSavedAnagrams
         integer, intent(in) ::leftIndex
         integer :: i
     
+        ! anagram found
         if (leftIndex == rightIndex) then
+            ! save it it in the anagrams array
             anagrams(numSavedAnagrams) = word
             numSavedAnagrams = numSavedAnagrams + 1
         else
+            ! loop through all the characters between the indices
             do i = leftIndex, rightIndex
+                ! swap the substring
                 call swap(word, leftIndex, i)
+                ! recursive call
                 call generateAnagram(word,anagrams,leftIndex+1,rightIndex,numSavedanagrams)
+                ! backtracing
                 call swap(word, leftIndex, i)
             end do
         end if
