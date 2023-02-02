@@ -222,19 +222,29 @@ module lexicon
 
     end function letterToIndex
 
-    subroutine findlex()
+    subroutine findlex(word, alphabetIndex, dictionary, result)
         implicit none
         !
+        ! search the dictionary and return true/false if the word was found
         !
-        !
+        character (len = 8), intent(in) :: word
+        character (len = 8), allocatable, dimension(:), intent(in) :: dictionary
+        integer, dimension(27), intent(in) :: alphabetIndex
+        logical, intent(out) :: result
+        integer :: lineNum
 
-        
-        
-        ! do i = alphabetIndex(anagramLetterToIndex(anagram(1))), alphabetIndex(anagramLetterToIndex(anagram(1))+1)
-        !     if (anagram == words(i)) then
-        !         lex = true
-        !     end if
-        ! end do
+        ! loop the dictionary 
+        ! only go through the strings that start with the same first character is the input word 
+        do lineNum = alphabetIndex(letterToIndex(word(1:1))), alphabetIndex(letterToIndex(word(1:1))+1)
+            ! if the word is found, return true
+            if (word == dictionary(lineNum)) then
+                result = .true.
+                exit
+            ! otherwise return false
+            else
+                result = .false.
+            end if
+        end do
         
         return
     end subroutine findlex

@@ -15,26 +15,16 @@ program solvejumble
     
     character (len=8), allocatable, dimension(:) :: jumbledWords, anagrams, dictionary
     integer, dimension(27) :: alphabetIndex
-    ! character (len=8) :: anagramFound, finalword, solution
+    character (len=8) :: foundAnagram = ''
+    ! character (len = 8) finalWord, solution
 
     ! allocate memory for dynmaic array of strings
     allocate(dictionary(88670))
     call buildlexicon(dictionary, alphabetIndex)
 
-    ! do i = 1, 27
-    !     print*,alphabetIndex(i)
-    ! end do
-
-    ! print*,letterToIndex('a')
-
-    ! do i = alphabetIndex(letterToIndex('a')), alphabetIndex(27)
-    !     print*,dictionary(i)
-    ! end do
-
     call inputJumble(numWords, jumbledWords)
 
     do index = 1, numWords
-        ! write(*,*) jumbledWords(index)
         wordLen = len_trim(jumbledWords(index))
         numAnagrams = 1
 
@@ -45,45 +35,39 @@ program solvejumble
         allocate(anagrams(numAnagrams))
 
         call generateAnagram(jumbledWords(index), anagrams,leftIndex,wordLen,savedAnagrams)
-        
-    ! do i=1, numAnagrams
-    !     print*,anagrams(i)
-    ! end do
 
 !   cleanAnagrams()
 
-    ! do i = 1, numAnagrams
-    !     if (findAnagram(anagrams(i))) then
-    !         anagramFound = anagrams(i)
-    !         exit
-    !     end if
-    ! end do
-    
-    ! write (*,*) anagramFound
+    call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
+    if (foundAnagram == '') then
+        write(*,*) "no match was found"
+    else
+        write (*,*) foundAnagram
+    end if
     !     write (*,*) 'How many circled letters?'
     !     read (*,*) numCircled
 
     !     do i = 1, numCircled
     !         write(*,*) 'letter' + i + 'index'
     !         read(*,*) circledIndex
-    !         finalword = finalword//anagramFound(circledIndex)
+    !         finalWord = finalWord//anagramFound(circledIndex)
     !     end do
-
+    deallocate(anagrams)
+    savedAnagrams = 1
+    leftIndex = 1
+    foundAnagram = ''
     end do
+    ! wordLen = len_trim(finalWord)
     ! numAnagrams = 1
-    ! wordLen = len_trim(finalword)
 
     ! do i = 1, wordLen
     !     numAnagrams = numAnagrams * i
     ! end do
 
-    ! call generateAnagram(finalWord, anagrams)
-    ! do i = 1, numAnagrams
-    !     if (findAnagram(anagrams(i))) then
-    !         solution = anagrams(i)
-    !         exit
-    !     end if
-    ! end do
+    ! allocate(anagrams(numAnagrams))
+
+    ! call generateAnagram(finalWord, anagrams,leftIndex,wordLen,savedAnagrams)
+    ! call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
 
     contains
 
@@ -171,5 +155,31 @@ program solvejumble
         return
     
     end subroutine generateAnagram
+
+    subroutine findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
+        implicit none
+        !
+        ! return the found anagram, given a list of anagrams and a dictionary
+        !
+        character (len=8), allocatable, dimension(:), intent(in):: anagrams, dictionary
+        integer, intent(in) :: numAnagrams
+        integer, dimension(27), intent(in) :: alphabetIndex
+        character (len = 8), intent(out) :: foundAnagram
+        integer :: i
+        logical :: result = .false.
+
+        ! for all anagrams, search if they exist in the dictionary
+        do i = 1, numAnagrams
+            call findlex(anagrams(i), alphabetIndex, dictionary, result)
+            ! if it exsits, return it
+            if (result) then
+                foundAnagram = anagrams(i)
+                exit
+            end if
+        end do
+
+
+        return
+    end subroutine findAnagram
 
 end program solvejumble
