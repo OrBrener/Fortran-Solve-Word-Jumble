@@ -8,7 +8,7 @@ program solvejumble
     !
     !
     integer :: numWords, wordLen, numAnagrams
-    ! integer :: numCircled, circledIndex
+    integer :: numCircled, circledIndex
     integer :: index, i
     integer :: leftIndex = 1
     integer :: savedAnagrams = 1
@@ -16,7 +16,7 @@ program solvejumble
     character (len=8), allocatable, dimension(:) :: jumbledWords, anagrams, dictionary
     integer, dimension(27) :: alphabetIndex
     character (len=8) :: foundAnagram = ''
-    ! character (len = 8) finalWord, solution
+    character (len = 8) :: finalWord = ''
 
     ! allocate memory for dynmaic array of strings
     allocate(dictionary(88670))
@@ -36,38 +36,51 @@ program solvejumble
 
         call generateAnagram(jumbledWords(index), anagrams,leftIndex,wordLen,savedAnagrams)
 
-!   cleanAnagrams()
+        ! cleanAnagrams()
 
-    call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
-    if (foundAnagram == '') then
-        write(*,*) "no match was found"
-    else
-        write (*,*) foundAnagram
-    end if
-    !     write (*,*) 'How many circled letters?'
-    !     read (*,*) numCircled
+        call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
 
-    !     do i = 1, numCircled
-    !         write(*,*) 'letter' + i + 'index'
-    !         read(*,*) circledIndex
-    !         finalWord = finalWord//anagramFound(circledIndex)
-    !     end do
+        if (foundAnagram == '') then
+            write(*,*) "no match was found"
+        else
+            write (*,*) foundAnagram
+        end if
+
+        write (*,*) 'How many circled letters?'
+        read (*,*) numCircled
+
+        do i = 1, numCircled
+            write(*,100) i
+            100 format ('letter', 1I1, 'index')
+            read(*,*) circledIndex
+            finalWord = trim(finalWord) // trim(foundAnagram(circledIndex:circledIndex))
+        end do
+
+        print*,finalWord
     deallocate(anagrams)
     savedAnagrams = 1
     leftIndex = 1
     foundAnagram = ''
     end do
-    ! wordLen = len_trim(finalWord)
-    ! numAnagrams = 1
 
-    ! do i = 1, wordLen
-    !     numAnagrams = numAnagrams * i
-    ! end do
+    wordLen = len_trim(finalWord)
+    numAnagrams = 1
 
-    ! allocate(anagrams(numAnagrams))
+    do i = 1, wordLen
+        numAnagrams = numAnagrams * i
+    end do
 
-    ! call generateAnagram(finalWord, anagrams,leftIndex,wordLen,savedAnagrams)
-    ! call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
+    allocate(anagrams(numAnagrams))
+
+    call generateAnagram(finalWord, anagrams,leftIndex,wordLen,savedAnagrams)
+    call findAnagram(anagrams, numAnagrams, alphabetIndex, dictionary, foundAnagram)
+
+    write(*,*) 'Fianl solution'
+    if (foundAnagram == '') then
+        write(*,*) "no match was found"
+    else
+        write (*,*) foundAnagram
+    end if
 
     contains
 
