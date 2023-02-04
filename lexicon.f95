@@ -1,6 +1,6 @@
 module lexicon
     implicit none
-
+    
     contains
 
     subroutine buildlexicon(dictionary, alphabetIndex)
