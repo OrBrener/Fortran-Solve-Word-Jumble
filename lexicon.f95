@@ -217,6 +217,8 @@ module lexicon
                 letterToIndex = 26
             case ('z')
                 letterToIndex = 26
+            case default
+                letterToIndex = -1
 
         end select
 
@@ -233,18 +235,23 @@ module lexicon
         logical, intent(out) :: result
         integer :: lineNum
 
-        ! loop the dictionary 
-        ! only go through the strings that start with the same first character is the input word 
-        do lineNum = alphabetIndex(letterToIndex(word(1:1))), alphabetIndex(letterToIndex(word(1:1))+1)
-            ! if the word is found, return true
-            if (word == dictionary(lineNum)) then
-                result = .true.
-                exit
-            ! otherwise return false
-            else
-                result = .false.
-            end if
-        end do
+        if (letterToIndex(word(1:1)) == -1) then
+            result = .false.
+        else
+            ! loop the dictionary 
+            ! only go through the strings that start with the same first character is the input word 
+            do lineNum = alphabetIndex(letterToIndex(word(1:1))), alphabetIndex(letterToIndex(word(1:1))+1)
+                ! if the word is found, return true
+                if (word == dictionary(lineNum)) then
+                    result = .true.
+                    exit
+                ! otherwise return false
+                else
+                    result = .false.
+                end if
+            end do
+        end if
+
         
         return
     end subroutine findlex
